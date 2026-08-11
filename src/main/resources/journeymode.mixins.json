@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "com.muriane.journeymode.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "InventoryMenuMixin$InventoryMenuInterface"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "client": [
+    "RecipeBookComponentMixin"
+  ]
+}
