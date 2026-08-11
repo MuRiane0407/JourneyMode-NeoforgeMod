@@ -1,6 +1,7 @@
 package com.muriane.journeymode;
 
 import com.muriane.journeymode.screen.ModMenuTypes;
+import net.neoforged.fml.config.ModConfig;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -30,7 +31,9 @@ public class JourneyMode {
         ModMenuTypes.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
-//        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        modContainer.registerConfig(ModConfig.Type.CLIENT, Config.clientSpec);
+        modContainer.registerConfig(ModConfig.Type.SERVER, Config.serverSpec);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

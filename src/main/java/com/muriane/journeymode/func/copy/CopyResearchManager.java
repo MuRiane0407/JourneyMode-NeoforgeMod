@@ -4,8 +4,11 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
+import com.muriane.journeymode.Config;
+import com.muriane.journeymode.screen.custom.CopyItemButton;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
@@ -17,15 +20,13 @@ import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class CopyResearchManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Map<UUID, PlayerResearchData> CACHE = new HashMap<>();
-    public static float researchDemandMultiplier = 1;
+    public static LocalPlayerResearchData LOCAL_CACHE;
 
     public static Path getPlayerDataPath(Player player) {
         File root = player.getServer().getWorldPath(LevelResource.ROOT).toFile();
@@ -89,12 +90,12 @@ public class CopyResearchManager {
     }
 
     public static class PlayerResearchData {
-        public Map<String, Integer> researchMap = new HashMap<>();
+        public Map<String, Integer> researchMap = new TreeMap<>();
 
         public PlayerResearchData() {}
 
         public ItemStack gainResearchProgress(ItemStack stack){
-            int maxProgress = (int) Math.ceil(stack.getItem().getDefaultMaxStackSize() * researchDemandMultiplier);
+            int maxProgress = (int) Math.ceil(stack.getItem().getDefaultMaxStackSize() * Config.SERVER.RESEARCH_DEMAND_MULTIPLIER.getAsDouble());
             int progress = researchMap.getOrDefault(stack.getItem().toString(), 0);
 
             if (progress >= maxProgress) return stack;
@@ -111,9 +112,33 @@ public class CopyResearchManager {
         }
 
         public boolean hasResearch(ItemStack stack){
-            int maxProgress = (int) Math.ceil(stack.getItem().getDefaultMaxStackSize() * researchDemandMultiplier);
+            int maxProgress = (int) Math.ceil(stack.getItem().getDefaultMaxStackSize() * Config.SERVER.RESEARCH_DEMAND_MULTIPLIER.getAsDouble());
             int progress = researchMap.getOrDefault(stack.getItem().toString(), 0);
             return progress >= maxProgress;
+        }
+    }
+
+    public static class LocalPlayerResearchData {
+        public static final int ITEM_PER_COPY_PAGE = 20;
+        public static final int ITEM_PER_COPY_PAGE_ROW = 5;
+
+        public Map<String, Integer> researchMap = new TreeMap<>();
+        public List<CopyItemButton> buttonList = new ArrayList<>();
+        public int maxPage = 0;
+        public int page = 0;
+
+        public LocalPlayerResearchData() {}
+
+        public void update() {
+            this.maxPage = researchMap.size()/ITEM_PER_COPY_PAGE;
+            this.buttonList = new ArrayList<>();
+            for (int i = 0 ; i+page*ITEM_PER_COPY_PAGE < CopyResearchManager.LOCAL_CACHE.researchMap.size() && i < ITEM_PER_COPY_PAGE ; i++) {
+                int xi = i % ITEM_PER_COPY_PAGE_ROW;
+                int yi = i / ITEM_PER_COPY_PAGE_ROW;
+                int index = i+page*ITEM_PER_COPY_PAGE;
+                String key = researchMap.keySet().stream().toList().get(index);
+                buttonList.add(new CopyItemButton(xi, yi, BuiltInRegistries.ITEM.get(ResourceLocation.parse(key)), researchMap.get(key)));
+            }
         }
     }
 }

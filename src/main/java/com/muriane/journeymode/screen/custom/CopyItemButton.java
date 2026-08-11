@@ -1,0 +1,70 @@
+package com.muriane.journeymode.screen.custom;
+
+import com.google.common.collect.Lists;
+import com.muriane.journeymode.JourneyMode;
+import com.muriane.journeymode.payload.CopyItemData;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.neoforged.neoforge.network.PacketDistributor;
+
+import javax.sound.midi.MidiChannel;
+import java.util.List;
+
+public class CopyItemButton extends ImageButton {
+    public static final WidgetSprites SLOT_COPYABLE_SPRITE = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/slot_copyable"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/slot_copyable"));
+    public static final WidgetSprites SLOT_NONCOPYABLE_SPRITE = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/slot_noncopyable"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/slot_noncopyable"));
+    public static final int COPY_SLOT_SIZE = 25;
+    private final Item item;
+    private final int xi;
+    private final int yi;
+    private final int progress;
+
+    public CopyItemButton(int xi, int yi, Item item, int progress) {
+        super(0, 0, COPY_SLOT_SIZE, COPY_SLOT_SIZE,
+                progress >= item.getDefaultMaxStackSize() ? SLOT_COPYABLE_SPRITE : SLOT_NONCOPYABLE_SPRITE,
+                button -> {}
+        );
+        this.xi = xi;
+        this.yi = yi;
+        this.item = item;
+        this.progress = progress;
+    }
+
+    public List<Component> getTooltipText() {
+        List<Component> list = Lists.newArrayList(Screen.getTooltipFromItem(Minecraft.getInstance(), this.item.getDefaultInstance()));
+        list.add(Component.translatable("tooltip.journeymode.copy_item_button.noncopyable", this.progress, this.item.getDefaultMaxStackSize()).withStyle(ChatFormatting.GRAY));
+
+        return list;
+    }
+
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, int x, int y){
+        this.setX(x+xi*COPY_SLOT_SIZE);
+        this.setY(y+yi*COPY_SLOT_SIZE);
+        this.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    @Override
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        guiGraphics.renderFakeItem(item.getDefaultInstance(), this.getX()+4, this.getY()+4);
+    }
+
+    @Override
+    public void onClick(double mouseX, double mouseY, int button) {
+        if (progress >= item.getDefaultMaxStackSize()) {
+            PacketDistributor.sendToServer(new CopyItemData(item.toString()));
+        }
+    }
+}

@@ -2,6 +2,8 @@ package com.muriane.journeymode.screen.custom;
 
 import com.google.common.collect.Lists;
 import com.muriane.journeymode.JourneyMode;
+import com.muriane.journeymode.func.copy.CopyResearchManager;
+import com.muriane.journeymode.payload.ResearchDataData;
 import com.muriane.journeymode.payload.ResearchItemData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -15,16 +17,18 @@ import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class CopyComponent implements Renderable, GuiEventListener, NarratableEntry {
-    protected static final ResourceLocation COPY_MENU_LOCATION = ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "textures/gui/copy/copy_menu.png");
+    public static final ResourceLocation COPY_MENU_LOCATION = ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "textures/gui/copy/copy_menu.png");
     public static final WidgetSprites RESEARCH_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/research_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/research_button.highlighted"));
-    private static final Component SEARCH_HINT = Component.translatable("gui.recipebook.search_hint").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY);
+    public static final Component SEARCH_HINT = Component.translatable("gui.recipebook.search_hint").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY);
     private int xOffset;
     private int width;
     private int height;
@@ -47,11 +51,12 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
     }
 
     public void initVisuals() {
+        PacketDistributor.sendToServer(new ResearchDataData(null));
         this.xOffset = this.widthTooNarrow ? 0 : 86;
         int i = (this.width - 147) / 2 - this.xOffset;
         int j = (this.height - 166) / 2;
         String s = this.searchBox != null ? this.searchBox.getValue() : "";
-        this.searchBox = new EditBox(this.minecraft.font, i + 25, j + 13, 112, 14, Component.translatable("itemGroup.search"));
+        this.searchBox = new EditBox(this.minecraft.font, i + 25, j + 13, 108, 14, Component.translatable("itemGroup.search"));
         this.searchBox.setMaxLength(50);
         this.searchBox.setVisible(true);
         this.searchBox.setTextColor(16777215);
@@ -70,19 +75,25 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (isVisible()){
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
+            guiGraphics.pose().translate(0.0F, 0.0F, 150.0F);
             int i = (this.width - 148) / 2 - this.xOffset;
             int j = (this.height - 166) / 2;
-            guiGraphics.blit(COPY_MENU_LOCATION, i, j, 1, 1, 143, 188);
+            guiGraphics.blit(COPY_MENU_LOCATION, i, j, 1, 1, 147, 188);
             this.searchBox.render(guiGraphics, mouseX, mouseY, partialTick);
             this.researchButton.render(guiGraphics, mouseX, mouseY, partialTick);
-            renderResearchedItems(guiGraphics, mouseX, mouseY, partialTick);
+            renderCopyPage(guiGraphics, mouseX, mouseY, partialTick, i+11, j+31);
             guiGraphics.pose().popPose();
         }
     }
 
-    public void renderResearchedItems(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-
+    public void renderCopyPage(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, int startX, int startY) {
+        Player player = Minecraft.getInstance().player;
+        if (CopyResearchManager.LOCAL_CACHE != null && player != null) {
+            for (CopyItemButton button : CopyResearchManager.LOCAL_CACHE.buttonList) {
+                button.renderWidget(guiGraphics, mouseX, mouseY, partialTick, startX, startY);
+                if (button.isMouseOver(mouseX, mouseY)) guiGraphics.renderComponentTooltip(this.minecraft.font, button.getTooltipText(), mouseX, mouseY);
+            }
+        }
     }
 
     public boolean isVisible() {
@@ -133,6 +144,12 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
                 this.searchBox.setFocused(false);
                 if (this.researchButton.mouseClicked(mouseX, mouseY, button)){
                     return true;
+                }else{
+                    for (CopyItemButton copyItemButton : CopyResearchManager.LOCAL_CACHE.buttonList){
+                        if (copyItemButton.mouseClicked(mouseX, mouseY, button)) {
+                            return true;
+                        }
+                    }
                 }
                 return false;
             }

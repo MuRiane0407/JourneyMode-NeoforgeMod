@@ -5,25 +5,32 @@ import com.muriane.journeymode.JourneyMode;
 import com.muriane.journeymode.func.copy.CopyResearchManager;
 import com.muriane.journeymode.screen.custom.JourneyModeMenu;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
-public record ResearchItemData() implements CustomPacketPayload {
+public record CopyItemData(String item) implements CustomPacketPayload {
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final Type<ResearchItemData> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "research_item"));
+    public static final Type<CopyItemData> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy_item"));
 
-    public static final StreamCodec<ByteBuf, ResearchItemData> STREAM_CODEC = StreamCodec.unit(new ResearchItemData());
+    public static final StreamCodec<ByteBuf, CopyItemData> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8,
+            CopyItemData::item,
+            CopyItemData::new
+    );
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
@@ -36,8 +43,8 @@ public record ResearchItemData() implements CustomPacketPayload {
         public static void register(RegisterPayloadHandlersEvent event){
             final PayloadRegistrar registrar = event.registrar("1");
             registrar.playBidirectional(
-                    ResearchItemData.TYPE,
-                    ResearchItemData.STREAM_CODEC,
+                    CopyItemData.TYPE,
+                    CopyItemData.STREAM_CODEC,
                     new DirectionalPayloadHandler<>(
                             ClientPayloadHandler::handleDataOnMain,
                             ServerPayloadHandler::handleDataOnMain
@@ -46,21 +53,16 @@ public record ResearchItemData() implements CustomPacketPayload {
         }
 
         public static class ServerPayloadHandler {
-            public static void handleDataOnMain(final ResearchItemData data, final IPayloadContext context) {
-                int slot = JourneyModeMenu.RESEARCH_SLOT;
-                if (slot < context.player().containerMenu.slots.size()) {
-                    ItemStack stack = context.player().containerMenu.getSlot(slot).getItem();
-                    if (CopyResearchManager.needResearch(stack, context.player())) {
-                        ItemStack newStack = CopyResearchManager.research(stack, context.player());
-                        context.player().containerMenu.setItem(slot, 0, newStack);
-                    }
+            public static void handleDataOnMain(final CopyItemData data, final IPayloadContext context) {
+                Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(data.item));
+                if (CopyResearchManager.hasResearch(item.getDefaultInstance(), context.player())){
+                    context.player().addItem(new ItemStack(item, item.getDefaultMaxStackSize()));
                 }
-                PacketDistributor.sendToPlayer((ServerPlayer) context.player(), new ResearchDataData(CopyResearchManager.getPlayerData(context.player())));
             }
         }
 
         public static class ClientPayloadHandler {
-            public static void handleDataOnMain(final ResearchItemData data, final IPayloadContext context) {
+            public static void handleDataOnMain(final CopyItemData data, final IPayloadContext context) {
 
             }
         }
