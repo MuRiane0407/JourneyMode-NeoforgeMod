@@ -2,7 +2,7 @@ package com.muriane.journeymode.screen.custom;
 
 import com.google.common.collect.Lists;
 import com.muriane.journeymode.JourneyMode;
-import com.muriane.journeymode.payload.DeleteContainerItemData;
+import com.muriane.journeymode.payload.ResearchItemData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,16 +11,10 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.recipebook.RecipeBookTabButton;
-import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
-import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
@@ -66,10 +60,7 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         this.researchButton = new ImageButton(i+30, j+163, 18, 18, RESEARCH_BUTTON_SPRITES,
                 button -> {
                     if (minecraft.player != null && minecraft.player.containerMenu instanceof JourneyModeMenu menu) {
-                        Slot slot = menu.slots.get(JourneyModeMenu.COPY_SLOT);
-                        ItemStack stack = slot.getItem();
-                        PacketDistributor.sendToServer(new DeleteContainerItemData(JourneyModeMenu.COPY_SLOT));
-                        System.out.print(stack+"\n");
+                        PacketDistributor.sendToServer(new ResearchItemData());
                     }
                 }
         );
@@ -82,11 +73,16 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
             guiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
             int i = (this.width - 148) / 2 - this.xOffset;
             int j = (this.height - 166) / 2;
-            guiGraphics.blit(COPY_MENU_LOCATION, i, j, 1, 1, 147, 188);
+            guiGraphics.blit(COPY_MENU_LOCATION, i, j, 1, 1, 143, 188);
             this.searchBox.render(guiGraphics, mouseX, mouseY, partialTick);
             this.researchButton.render(guiGraphics, mouseX, mouseY, partialTick);
+            renderResearchedItems(guiGraphics, mouseX, mouseY, partialTick);
             guiGraphics.pose().popPose();
         }
+    }
+
+    public void renderResearchedItems(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+
     }
 
     public boolean isVisible() {

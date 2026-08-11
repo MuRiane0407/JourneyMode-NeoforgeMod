@@ -2,7 +2,6 @@ package com.muriane.journeymode.screen.custom;
 
 import com.mojang.datafixers.util.Pair;
 import com.muriane.journeymode.screen.ModMenuTypes;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -51,7 +50,7 @@ public class JourneyModeMenu extends RecipeBookMenu<CraftingInput, CraftingRecip
     public final boolean active;
     private final Player owner;
 
-    public static final int COPY_SLOT = 46;
+    public static final int RESEARCH_SLOT = 46;
     private final ItemStackHandler container = new ItemStackHandler(1);
 
     public JourneyModeMenu(int containerId, Inventory inventory, RegistryFriendlyByteBuf registryFriendlyByteBuf) {
