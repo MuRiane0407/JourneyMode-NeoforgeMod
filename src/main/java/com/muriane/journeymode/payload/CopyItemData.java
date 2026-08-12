@@ -2,16 +2,13 @@ package com.muriane.journeymode.payload;
 
 import com.mojang.logging.LogUtils;
 import com.muriane.journeymode.JourneyMode;
-import com.muriane.journeymode.func.copy.CopyResearchManager;
-import com.muriane.journeymode.screen.custom.JourneyModeMenu;
+import com.muriane.journeymode.func.copy.CopyManager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -59,7 +56,7 @@ public record CopyItemData(String item, int button, boolean shift) implements Cu
         public static class ServerPayloadHandler {
             public static void handleDataOnMain(final CopyItemData data, final IPayloadContext context) {
                 Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(data.item));
-                if (CopyResearchManager.hasResearch(item.getDefaultInstance(), context.player())){
+                if (CopyManager.hasResearch(item.getDefaultInstance(), context.player())){
                     int count = data.button == 0 ? item.getDefaultMaxStackSize() : 1;
                     ItemStack stack = new ItemStack(item, count);
                     if (data.shift) {

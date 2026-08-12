@@ -1,7 +1,6 @@
-package com.muriane.journeymode.sound;
+package com.muriane.journeymode.util;
 
 import com.muriane.journeymode.JourneyMode;
-import com.muriane.journeymode.screen.custom.JourneyModeMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;

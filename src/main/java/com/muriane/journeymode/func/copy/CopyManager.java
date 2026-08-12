@@ -23,7 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-public class CopyResearchManager {
+public class CopyManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Map<UUID, PlayerResearchData> CACHE = new HashMap<>();
@@ -125,17 +125,17 @@ public class CopyResearchManager {
         public List<Pair<String, Integer>> researches = new ArrayList<>();
         public List<CopyItemButton> buttonList = new ArrayList<>();
         public int maxPage = 0;
-        public int page = 0;
+        public int page = 1;
 
         public LocalPlayerResearchData() {}
 
         public void update() {
-            this.maxPage = researches.size()/ITEM_PER_COPY_PAGE;
+            this.maxPage = (int) Math.ceil(researches.size()/(1.0*ITEM_PER_COPY_PAGE));
             this.buttonList = new ArrayList<>();
-            for (int i = 0 ; i+page*ITEM_PER_COPY_PAGE < researches.size() && i < ITEM_PER_COPY_PAGE ; i++) {
+            for (int i = 0 ; i+(page-1)*ITEM_PER_COPY_PAGE < researches.size() && i < ITEM_PER_COPY_PAGE ; i++) {
                 int xi = i % ITEM_PER_COPY_PAGE_ROW;
                 int yi = i / ITEM_PER_COPY_PAGE_ROW;
-                int index = i+page*ITEM_PER_COPY_PAGE;
+                int index = i+(page-1)*ITEM_PER_COPY_PAGE;
                 buttonList.add(new CopyItemButton(xi, yi, BuiltInRegistries.ITEM.get(ResourceLocation.parse(researches.get(index).getFirst())), researches.get(index).getSecond()));
             }
         }
@@ -144,14 +144,25 @@ public class CopyResearchManager {
             List<Pair<String, Integer>> searchResearches = researches.stream()
                     .filter(pair -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(pair.getFirst())).getDefaultInstance().getHoverName().getString().contains(string))
                     .toList();
-            this.maxPage = searchResearches.size()/ITEM_PER_COPY_PAGE;
+            this.maxPage = (int) Math.ceil(searchResearches.size()/(1.0*ITEM_PER_COPY_PAGE));
+            if (this.page > this.maxPage) this.page = 1;
             this.buttonList = new ArrayList<>();
-            for (int i = 0 ; i+page*ITEM_PER_COPY_PAGE < searchResearches.size() && i < ITEM_PER_COPY_PAGE ; i++) {
+            for (int i = 0 ; i+(page-1)*ITEM_PER_COPY_PAGE < searchResearches.size() && i < ITEM_PER_COPY_PAGE ; i++) {
                 int xi = i % ITEM_PER_COPY_PAGE_ROW;
                 int yi = i / ITEM_PER_COPY_PAGE_ROW;
-                int index = i+page*ITEM_PER_COPY_PAGE;
+                int index = i+(page-1)*ITEM_PER_COPY_PAGE;
                 buttonList.add(new CopyItemButton(xi, yi, BuiltInRegistries.ITEM.get(ResourceLocation.parse(searchResearches.get(index).getFirst())), searchResearches.get(index).getSecond()));
             }
+        }
+
+        public void forwardPage(){
+            page = Math.min(page+1, maxPage);
+            update();
+        }
+
+        public void backwardPage(){
+            page = Math.max(page-1, 1);
+            update();
         }
     }
 }

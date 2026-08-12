@@ -3,14 +3,13 @@ package com.muriane.journeymode.payload;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.muriane.journeymode.JourneyMode;
-import com.muriane.journeymode.func.copy.CopyResearchManager;
+import com.muriane.journeymode.func.copy.CopyManager;
 import com.muriane.journeymode.screen.custom.JourneyModeMenu;
-import com.muriane.journeymode.sound.ModSounds;
+import com.muriane.journeymode.util.ModSounds;
 import com.muriane.journeymode.util.ModUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -54,15 +53,15 @@ public record ResearchItemData() implements CustomPacketPayload {
                 int slot = JourneyModeMenu.RESEARCH_SLOT;
                 if (slot < context.player().containerMenu.slots.size()) {
                     ItemStack stack = context.player().containerMenu.getSlot(slot).getItem();
-                    if (CopyResearchManager.needResearch(stack, context.player())) {
-                        Pair<ItemStack, Boolean> pair = CopyResearchManager.research(stack, context.player());
+                    if (CopyManager.needResearch(stack, context.player())) {
+                        Pair<ItemStack, Boolean> pair = CopyManager.research(stack, context.player());
                         context.player().containerMenu.setItem(slot, 0, pair.getFirst());
 
                         ModUtils.playSoundForPlayer((ServerPlayer) context.player(), ModSounds.RESEARCH.get(), 1.0F, 1.0F);
                         if (pair.getSecond()) ModUtils.playSoundForPlayer((ServerPlayer) context.player(), ModSounds.RESEARCH_FINISH.get(), 1.0F, 1.0F);
                     }
                 }
-                PacketDistributor.sendToPlayer((ServerPlayer) context.player(), new ResearchDataData(CopyResearchManager.getPlayerData(context.player())));
+                PacketDistributor.sendToPlayer((ServerPlayer) context.player(), new ResearchDataData(CopyManager.getPlayerData(context.player())));
             }
         }
 

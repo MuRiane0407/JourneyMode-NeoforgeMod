@@ -44,7 +44,7 @@ public class CopyItemButton extends ImageButton {
 
     public List<Component> getTooltipText() {
         List<Component> list = Lists.newArrayList(Screen.getTooltipFromItem(Minecraft.getInstance(), this.item.getDefaultInstance()));
-        if (progress != -1) list.add(Component.translatable("tooltip.journeymode.copy_item_button.noncopyable", this.progress, this.item.getDefaultMaxStackSize()).withStyle(ChatFormatting.GRAY));
+        if (progress != -1) list.add(Component.translatable("gui.journeymode.copy_item_button.tooltip.noncopyable", this.progress, this.item.getDefaultMaxStackSize()).withStyle(ChatFormatting.GRAY));
 
         return list;
     }

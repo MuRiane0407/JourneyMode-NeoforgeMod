@@ -1,7 +1,7 @@
 package com.muriane.journeymode;
 
 import com.muriane.journeymode.screen.ModMenuTypes;
-import com.muriane.journeymode.sound.ModSounds;
+import com.muriane.journeymode.util.ModSounds;
 import net.neoforged.fml.config.ModConfig;
 import org.slf4j.Logger;
 

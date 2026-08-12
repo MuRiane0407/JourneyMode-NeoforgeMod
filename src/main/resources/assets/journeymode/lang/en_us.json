@@ -1,3 +1,4 @@
 {
-  "tooltip.journeymode.copy_item_button.noncopyable": "§7%d/%d"
+  "gui.journeymode.copy_item_button.tooltip.noncopyable": "§7%d/%d",
+  "gui.journeymode.copy_page.page": "%s/%s"
 }
