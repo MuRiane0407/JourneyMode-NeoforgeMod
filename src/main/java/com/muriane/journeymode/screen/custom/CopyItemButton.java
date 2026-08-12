@@ -33,7 +33,7 @@ public class CopyItemButton extends ImageButton {
 
     public CopyItemButton(int xi, int yi, Item item, int progress) {
         super(0, 0, COPY_SLOT_SIZE, COPY_SLOT_SIZE,
-                progress >= item.getDefaultMaxStackSize() ? SLOT_COPYABLE_SPRITE : SLOT_NONCOPYABLE_SPRITE,
+                progress == -1 ? SLOT_COPYABLE_SPRITE : SLOT_NONCOPYABLE_SPRITE,
                 button -> {}
         );
         this.xi = xi;
@@ -44,7 +44,7 @@ public class CopyItemButton extends ImageButton {
 
     public List<Component> getTooltipText() {
         List<Component> list = Lists.newArrayList(Screen.getTooltipFromItem(Minecraft.getInstance(), this.item.getDefaultInstance()));
-        list.add(Component.translatable("tooltip.journeymode.copy_item_button.noncopyable", this.progress, this.item.getDefaultMaxStackSize()).withStyle(ChatFormatting.GRAY));
+        if (progress != -1) list.add(Component.translatable("tooltip.journeymode.copy_item_button.noncopyable", this.progress, this.item.getDefaultMaxStackSize()).withStyle(ChatFormatting.GRAY));
 
         return list;
     }
@@ -63,8 +63,13 @@ public class CopyItemButton extends ImageButton {
 
     @Override
     public void onClick(double mouseX, double mouseY, int button) {
-        if (progress >= item.getDefaultMaxStackSize()) {
-            PacketDistributor.sendToServer(new CopyItemData(item.toString()));
+        if (progress == -1) {
+            PacketDistributor.sendToServer(new CopyItemData(item.toString(), button, Screen.hasShiftDown()));
         }
+    }
+
+    @Override
+    protected boolean isValidClickButton(int button) {
+        return button == 0 || button == 1;
     }
 }

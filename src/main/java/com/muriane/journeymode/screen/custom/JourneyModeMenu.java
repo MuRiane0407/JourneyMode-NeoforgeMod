@@ -2,6 +2,8 @@ package com.muriane.journeymode.screen.custom;
 
 import com.mojang.datafixers.util.Pair;
 import com.muriane.journeymode.screen.ModMenuTypes;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,6 +23,7 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
+import java.nio.charset.MalformedInputException;
 import java.util.Map;
 
 public class JourneyModeMenu extends RecipeBookMenu<CraftingInput, CraftingRecipe> {
@@ -96,7 +99,7 @@ public class JourneyModeMenu extends RecipeBookMenu<CraftingInput, CraftingRecip
             }
         });
 
-        this.addSlot(new SlotItemHandler(container, 0, -141, 164));
+        this.addSlot(new SlotItemHandler(container, 0, -141, 168));
     }
 
     public static Slot createArmorSlot(Container container, LivingEntity owner, EquipmentSlot slot, int slotIndex, int x, int y, @Nullable ResourceLocation emptyIcon) {

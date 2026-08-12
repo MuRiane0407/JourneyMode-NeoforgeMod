@@ -3,6 +3,7 @@ package com.muriane.journeymode.func.copy;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.muriane.journeymode.Config;
 import com.muriane.journeymode.screen.custom.CopyItemButton;
@@ -69,11 +70,11 @@ public class CopyResearchManager {
         }
     }
 
-    public static ItemStack research(ItemStack stack, Player player){
+    public static Pair<ItemStack, Boolean> research(ItemStack stack, Player player){
         PlayerResearchData data = getPlayerData(player);
-        ItemStack newStack = data.gainResearchProgress(stack);
+        Pair<ItemStack, Boolean> pair = data.gainResearchProgress(stack);
         savePlayerData(player, data);
-        return newStack;
+        return pair;
     }
 
     public static boolean needResearch(ItemStack stack, Player player){
@@ -81,7 +82,7 @@ public class CopyResearchManager {
     }
 
     public static boolean canResearch(ItemStack stack, Player player) {
-        return true;
+        return !stack.isEmpty();
     }
 
     public static boolean hasResearch(ItemStack stack, Player player) {
@@ -94,20 +95,20 @@ public class CopyResearchManager {
 
         public PlayerResearchData() {}
 
-        public ItemStack gainResearchProgress(ItemStack stack){
+        public Pair<ItemStack, Boolean> gainResearchProgress(ItemStack stack){
             int maxProgress = (int) Math.ceil(stack.getItem().getDefaultMaxStackSize() * Config.SERVER.RESEARCH_DEMAND_MULTIPLIER.getAsDouble());
             int progress = researchMap.getOrDefault(stack.getItem().toString(), 0);
 
-            if (progress >= maxProgress) return stack;
+            if (progress >= maxProgress) return new Pair<>(stack, true);
 
             int count = stack.getCount();
             int need = maxProgress - progress;
             if (count < need) {
                 researchMap.put(stack.getItem().toString(), progress+count);
-                return ItemStack.EMPTY;
+                return new Pair<>(ItemStack.EMPTY, false);
             }else{
                 researchMap.put(stack.getItem().toString(), maxProgress);
-                return new ItemStack(stack.getItem(), count-need);
+                return new Pair<>(new ItemStack(stack.getItem(), count-need), true);
             }
         }
 
@@ -121,8 +122,7 @@ public class CopyResearchManager {
     public static class LocalPlayerResearchData {
         public static final int ITEM_PER_COPY_PAGE = 20;
         public static final int ITEM_PER_COPY_PAGE_ROW = 5;
-
-        public Map<String, Integer> researchMap = new TreeMap<>();
+        public List<Pair<String, Integer>> researches = new ArrayList<>();
         public List<CopyItemButton> buttonList = new ArrayList<>();
         public int maxPage = 0;
         public int page = 0;
@@ -130,14 +130,13 @@ public class CopyResearchManager {
         public LocalPlayerResearchData() {}
 
         public void update() {
-            this.maxPage = researchMap.size()/ITEM_PER_COPY_PAGE;
+            this.maxPage = researches.size()/ITEM_PER_COPY_PAGE;
             this.buttonList = new ArrayList<>();
-            for (int i = 0 ; i+page*ITEM_PER_COPY_PAGE < CopyResearchManager.LOCAL_CACHE.researchMap.size() && i < ITEM_PER_COPY_PAGE ; i++) {
+            for (int i = 0 ; i+page*ITEM_PER_COPY_PAGE < CopyResearchManager.LOCAL_CACHE.researches.size() && i < ITEM_PER_COPY_PAGE ; i++) {
                 int xi = i % ITEM_PER_COPY_PAGE_ROW;
                 int yi = i / ITEM_PER_COPY_PAGE_ROW;
                 int index = i+page*ITEM_PER_COPY_PAGE;
-                String key = researchMap.keySet().stream().toList().get(index);
-                buttonList.add(new CopyItemButton(xi, yi, BuiltInRegistries.ITEM.get(ResourceLocation.parse(key)), researchMap.get(key)));
+                buttonList.add(new CopyItemButton(xi, yi, BuiltInRegistries.ITEM.get(ResourceLocation.parse(researches.get(index).getFirst())), researches.get(index).getSecond()));
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.muriane.journeymode.payload;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.muriane.journeymode.JourneyMode;
 import com.muriane.journeymode.func.copy.CopyResearchManager;
@@ -85,10 +86,22 @@ public record ResearchDataData(CopyResearchManager.PlayerResearchData data) impl
             public static void handleDataOnMain(final ResearchDataData data, final IPayloadContext context) {
                 CopyResearchManager.LocalPlayerResearchData newData = new CopyResearchManager.LocalPlayerResearchData();
                 for (String key : data.data.researchMap.keySet()){
-                    newData.researchMap.put(key, data.data.researchMap.get(key));
+                    if (data.data.researchMap.get(key) >= BuiltInRegistries.ITEM.get(ResourceLocation.parse(key)).getDefaultMaxStackSize()) {
+                        newData.researches.add(new Pair<>(key, -1));
+                    }else{
+                        newData.researches.add(new Pair<>(key, data.data.researchMap.get(key)));
+                    }
                 }
+                newData.researches.sort(ClientPayloadHandler::researchSorter);
                 CopyResearchManager.LOCAL_CACHE = newData;
                 CopyResearchManager.LOCAL_CACHE.update();
+            }
+
+            public static int researchSorter(Pair<String, Integer> a, Pair<String, Integer> b) {
+                boolean bothFinishOrUnfinish = a.getSecond() == -1 && b.getSecond() == -1 || a.getSecond() != -1 && b.getSecond() != -1;
+                return bothFinishOrUnfinish ?
+                        a.getFirst().compareTo(b.getFirst()) :
+                        a.getSecond() == -1 ? -1 : 1;
             }
         }
     }

@@ -53,7 +53,7 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
     public void initVisuals() {
         PacketDistributor.sendToServer(new ResearchDataData(null));
         this.xOffset = this.widthTooNarrow ? 0 : 86;
-        int i = (this.width - 147) / 2 - this.xOffset;
+        int i = (this.width - 148) / 2 - this.xOffset;
         int j = (this.height - 166) / 2;
         String s = this.searchBox != null ? this.searchBox.getValue() : "";
         this.searchBox = new EditBox(this.minecraft.font, i + 25, j + 13, 108, 14, Component.translatable("itemGroup.search"));
@@ -62,7 +62,7 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         this.searchBox.setTextColor(16777215);
         this.searchBox.setValue(s);
         this.searchBox.setHint(SEARCH_HINT);
-        this.researchButton = new ImageButton(i+30, j+163, 18, 18, RESEARCH_BUTTON_SPRITES,
+        this.researchButton = new ImageButton(i+30, j+167, 18, 18, RESEARCH_BUTTON_SPRITES,
                 button -> {
                     if (minecraft.player != null && minecraft.player.containerMenu instanceof JourneyModeMenu menu) {
                         PacketDistributor.sendToServer(new ResearchItemData());
@@ -75,10 +75,10 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (isVisible()){
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0.0F, 0.0F, 150.0F);
+            guiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
             int i = (this.width - 148) / 2 - this.xOffset;
             int j = (this.height - 166) / 2;
-            guiGraphics.blit(COPY_MENU_LOCATION, i, j, 1, 1, 147, 188);
+            guiGraphics.blit(COPY_MENU_LOCATION, i, j, 1, 1, 147, 192);
             this.searchBox.render(guiGraphics, mouseX, mouseY, partialTick);
             this.researchButton.render(guiGraphics, mouseX, mouseY, partialTick);
             renderCopyPage(guiGraphics, mouseX, mouseY, partialTick, i+11, j+31);
@@ -91,7 +91,10 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         if (CopyResearchManager.LOCAL_CACHE != null && player != null) {
             for (CopyItemButton button : CopyResearchManager.LOCAL_CACHE.buttonList) {
                 button.renderWidget(guiGraphics, mouseX, mouseY, partialTick, startX, startY);
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0.0F, 0.0F, 10.0F);
                 if (button.isMouseOver(mouseX, mouseY)) guiGraphics.renderComponentTooltip(this.minecraft.font, button.getTooltipText(), mouseX, mouseY);
+                guiGraphics.pose().popPose();
             }
         }
     }
@@ -181,6 +184,20 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
             this.minecraft.reloadResourcePacks();
             this.minecraft.options.save();
         }
+    }
+
+    public boolean hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop, int mouseButton) {
+        int x = (this.width - 148) / 2 - this.xOffset;
+        int y = (this.height - 166) / 2;
+        boolean main = mouseX < x ||
+                mouseY < y ||
+                mouseX >= x+147 ||
+                mouseY >= y+166;
+        boolean research = mouseX < x ||
+                mouseY < y+166 ||
+                mouseX >= x+56 ||
+                mouseY >= y+166+26;
+        return main && research;
     }
 
     private void updateCollections(boolean resetPageNumber) {

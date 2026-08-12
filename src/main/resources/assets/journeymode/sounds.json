@@ -1,0 +1,16 @@
+{
+  "research": {
+    "subtitle": "sounds.journeymode.research",
+    "sounds": [
+      "journeymode:research_1",
+      "journeymode:research_2",
+      "journeymode:research_3"
+    ]
+  },
+  "research_finish": {
+    "subtitle": "sounds.journeymode.research_finish",
+    "sounds": [
+      "journeymode:research_finish"
+    ]
+  }
+}

@@ -22,13 +22,17 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
-public record CopyItemData(String item) implements CustomPacketPayload {
+public record CopyItemData(String item, int button, boolean shift) implements CustomPacketPayload {
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final Type<CopyItemData> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy_item"));
 
     public static final StreamCodec<ByteBuf, CopyItemData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8,
             CopyItemData::item,
+            ByteBufCodecs.INT,
+            CopyItemData::button,
+            ByteBufCodecs.BOOL,
+            CopyItemData::shift,
             CopyItemData::new
     );
 
@@ -56,7 +60,18 @@ public record CopyItemData(String item) implements CustomPacketPayload {
             public static void handleDataOnMain(final CopyItemData data, final IPayloadContext context) {
                 Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(data.item));
                 if (CopyResearchManager.hasResearch(item.getDefaultInstance(), context.player())){
-                    context.player().addItem(new ItemStack(item, item.getDefaultMaxStackSize()));
+                    int count = data.button == 0 ? item.getDefaultMaxStackSize() : 1;
+                    ItemStack stack = new ItemStack(item, count);
+                    if (data.shift) {
+                        context.player().addItem(stack);
+                    }else{
+                        ItemStack stackCarried = context.player().containerMenu.getCarried();
+                        if (stackCarried.is(item)){
+                            stackCarried.setCount(Math.min(stackCarried.getCount()+count, stackCarried.getMaxStackSize()));
+                        }else if (stackCarried.isEmpty()){
+                            context.player().containerMenu.setCarried(stack);
+                        }
+                    }
                 }
             }
         }

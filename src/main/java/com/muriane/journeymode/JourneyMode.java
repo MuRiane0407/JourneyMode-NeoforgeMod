@@ -1,6 +1,7 @@
 package com.muriane.journeymode;
 
 import com.muriane.journeymode.screen.ModMenuTypes;
+import com.muriane.journeymode.sound.ModSounds;
 import net.neoforged.fml.config.ModConfig;
 import org.slf4j.Logger;
 
@@ -29,6 +30,7 @@ public class JourneyMode {
         modEventBus.addListener(this::commonSetup);
 
         ModMenuTypes.register(modEventBus);
+        ModSounds.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
 

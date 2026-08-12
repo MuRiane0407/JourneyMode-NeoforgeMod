@@ -189,7 +189,7 @@ public class JourneyModeScreen extends EffectRenderingInventoryScreen<JourneyMod
                 || mouseY < (double)guiTop
                 || mouseX >= (double)(guiLeft + this.imageWidth)
                 || mouseY >= (double)(guiTop + this.imageHeight);
-        return flag;
+        return this.copyComponent.hasClickedOutside(mouseX, mouseY, guiLeft, guiTop, mouseButton) && flag;
     }
 
     @Override
