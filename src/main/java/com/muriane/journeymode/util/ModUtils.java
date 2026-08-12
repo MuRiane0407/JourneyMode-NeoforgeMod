@@ -3,22 +3,16 @@ package com.muriane.journeymode.util;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import org.checkerframework.checker.index.qual.PolyUpperBound;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ModUtils {
     public static void playSoundForPlayer(ServerPlayer player, SoundEvent sound, float volume, float pitch) {

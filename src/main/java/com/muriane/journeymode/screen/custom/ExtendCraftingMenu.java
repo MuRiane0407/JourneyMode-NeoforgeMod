@@ -1,22 +1,16 @@
 package com.muriane.journeymode.screen.custom;
 
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.ResultContainer;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 public class ExtendCraftingMenu extends CraftingMenu {
     public ExtendCraftingMenu(int containerId, Inventory playerInventory) {

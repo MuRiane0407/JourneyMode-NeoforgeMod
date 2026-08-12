@@ -6,20 +6,14 @@ import com.muriane.journeymode.payload.CopyItemData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import javax.sound.midi.MidiChannel;
 import java.util.List;
 
 public class CopyItemButton extends ImageButton {

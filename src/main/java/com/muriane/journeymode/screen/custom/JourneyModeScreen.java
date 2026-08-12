@@ -4,15 +4,12 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
-import net.minecraft.world.inventory.Slot;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
