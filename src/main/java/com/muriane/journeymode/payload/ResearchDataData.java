@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.muriane.journeymode.JourneyMode;
 import com.muriane.journeymode.func.copy.CopyResearchManager;
+import com.muriane.journeymode.util.ModUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -92,16 +93,9 @@ public record ResearchDataData(CopyResearchManager.PlayerResearchData data) impl
                         newData.researches.add(new Pair<>(key, data.data.researchMap.get(key)));
                     }
                 }
-                newData.researches.sort(ClientPayloadHandler::researchSorter);
+                newData.researches.sort(ModUtils::researchSorter);
                 CopyResearchManager.LOCAL_CACHE = newData;
                 CopyResearchManager.LOCAL_CACHE.update();
-            }
-
-            public static int researchSorter(Pair<String, Integer> a, Pair<String, Integer> b) {
-                boolean bothFinishOrUnfinish = a.getSecond() == -1 && b.getSecond() == -1 || a.getSecond() != -1 && b.getSecond() != -1;
-                return bothFinishOrUnfinish ?
-                        a.getFirst().compareTo(b.getFirst()) :
-                        a.getSecond() == -1 ? -1 : 1;
             }
         }
     }

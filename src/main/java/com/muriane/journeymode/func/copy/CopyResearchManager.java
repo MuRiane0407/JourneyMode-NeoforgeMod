@@ -132,11 +132,25 @@ public class CopyResearchManager {
         public void update() {
             this.maxPage = researches.size()/ITEM_PER_COPY_PAGE;
             this.buttonList = new ArrayList<>();
-            for (int i = 0 ; i+page*ITEM_PER_COPY_PAGE < CopyResearchManager.LOCAL_CACHE.researches.size() && i < ITEM_PER_COPY_PAGE ; i++) {
+            for (int i = 0 ; i+page*ITEM_PER_COPY_PAGE < researches.size() && i < ITEM_PER_COPY_PAGE ; i++) {
                 int xi = i % ITEM_PER_COPY_PAGE_ROW;
                 int yi = i / ITEM_PER_COPY_PAGE_ROW;
                 int index = i+page*ITEM_PER_COPY_PAGE;
                 buttonList.add(new CopyItemButton(xi, yi, BuiltInRegistries.ITEM.get(ResourceLocation.parse(researches.get(index).getFirst())), researches.get(index).getSecond()));
+            }
+        }
+
+        public void updateWithSearch(String string) {
+            List<Pair<String, Integer>> searchResearches = researches.stream()
+                    .filter(pair -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(pair.getFirst())).getDefaultInstance().getHoverName().getString().contains(string))
+                    .toList();
+            this.maxPage = searchResearches.size()/ITEM_PER_COPY_PAGE;
+            this.buttonList = new ArrayList<>();
+            for (int i = 0 ; i+page*ITEM_PER_COPY_PAGE < searchResearches.size() && i < ITEM_PER_COPY_PAGE ; i++) {
+                int xi = i % ITEM_PER_COPY_PAGE_ROW;
+                int yi = i / ITEM_PER_COPY_PAGE_ROW;
+                int index = i+page*ITEM_PER_COPY_PAGE;
+                buttonList.add(new CopyItemButton(xi, yi, BuiltInRegistries.ITEM.get(ResourceLocation.parse(searchResearches.get(index).getFirst())), searchResearches.get(index).getSecond()));
             }
         }
     }

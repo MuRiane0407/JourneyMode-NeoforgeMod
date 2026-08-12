@@ -92,7 +92,7 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
             for (CopyItemButton button : CopyResearchManager.LOCAL_CACHE.buttonList) {
                 button.renderWidget(guiGraphics, mouseX, mouseY, partialTick, startX, startY);
                 guiGraphics.pose().pushPose();
-                guiGraphics.pose().translate(0.0F, 0.0F, 10.0F);
+                guiGraphics.pose().translate(0.0F, 0.0F, 50.0F);
                 if (button.isMouseOver(mouseX, mouseY)) guiGraphics.renderComponentTooltip(this.minecraft.font, button.getTooltipText(), mouseX, mouseY);
                 guiGraphics.pose().popPose();
             }
@@ -108,6 +108,7 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         if (this.isVisible() && !this.minecraft.player.isSpectator()) {
             if (this.searchBox.keyPressed(keyCode, scanCode, modifiers)) {
                 this.checkSearchStringUpdate();
+                CopyResearchManager.LOCAL_CACHE.updateWithSearch(this.searchBox.getValue());
                 return true;
             } else if (this.searchBox.isFocused() && this.searchBox.isVisible() && keyCode != 256) {
                 return true;
@@ -129,6 +130,7 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         } else if (this.isVisible() && !this.minecraft.player.isSpectator()) {
             if (this.searchBox.charTyped(codePoint, modifiers)) {
                 this.checkSearchStringUpdate();
+                CopyResearchManager.LOCAL_CACHE.updateWithSearch(this.searchBox.getValue());
                 return true;
             } else {
                 return GuiEventListener.super.charTyped(codePoint, modifiers);
