@@ -19,7 +19,7 @@ public class JourneyModeScreen extends EffectRenderingInventoryScreen<JourneyMod
     private float xMouse;
     private float yMouse;
     private final CopyComponent copyComponent = new CopyComponent();
-    private boolean widthTooNarrow;
+    private final JourneyModeFunctionComponent functionComponent = new JourneyModeFunctionComponent();
     private boolean buttonClicked;
 
     public JourneyModeScreen(JourneyModeMenu menu, Inventory inventory, Component title){
@@ -31,10 +31,11 @@ public class JourneyModeScreen extends EffectRenderingInventoryScreen<JourneyMod
     protected void init() {
         super.init();
         this.leftPos = 177 + (width - imageWidth - 200) / 2;
-        this.widthTooNarrow = this.width < 379;
         this.addRenderableWidget(new JourneyModeButton(this.getGuiLeft() + 104 + 26, this.height / 2 - 22));
+        copyComponent.init(this.leftPos-149, this.topPos, minecraft);
         this.addRenderableWidget(copyComponent);
-        copyComponent.init(width, height, minecraft, widthTooNarrow);
+        functionComponent.init(this.leftPos, this.topPos+168, minecraft);
+        this.addRenderableWidget(functionComponent);
     }
 
     @Override
@@ -157,17 +158,17 @@ public class JourneyModeScreen extends EffectRenderingInventoryScreen<JourneyMod
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        return this.copyComponent.keyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
+        return this.copyComponent.keyPressed(keyCode, scanCode, modifiers) || this.functionComponent.keyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
-        return this.copyComponent.charTyped(codePoint, modifiers) || super.charTyped(codePoint, modifiers);
+        return this.copyComponent.charTyped(codePoint, modifiers) || this.functionComponent.charTyped(codePoint, modifiers) || super.charTyped(codePoint, modifiers);
     }
 
     @Override
     protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
-        return (!this.widthTooNarrow || !this.copyComponent.isVisible()) && super.isHovering(x, y, width, height, mouseX, mouseY);
+        return super.isHovering(x, y, width, height, mouseX, mouseY);
     }
 
     @Override
@@ -175,8 +176,11 @@ public class JourneyModeScreen extends EffectRenderingInventoryScreen<JourneyMod
         if (this.copyComponent.mouseClicked(mouseX, mouseY, button)) {
             this.setFocused(this.copyComponent);
             return true;
+        } else if (this.functionComponent.mouseClicked(mouseX, mouseY, button)){
+            this.setFocused(this.functionComponent);
+            return true;
         } else {
-            return (!this.widthTooNarrow || !this.copyComponent.isVisible()) && super.mouseClicked(mouseX, mouseY, button);
+            return super.mouseClicked(mouseX, mouseY, button);
         }
     }
 
@@ -186,7 +190,7 @@ public class JourneyModeScreen extends EffectRenderingInventoryScreen<JourneyMod
                 || mouseY < (double)guiTop
                 || mouseX >= (double)(guiLeft + this.imageWidth)
                 || mouseY >= (double)(guiTop + this.imageHeight);
-        return this.copyComponent.hasClickedOutside(mouseX, mouseY, guiLeft, guiTop, mouseButton) && flag;
+        return this.copyComponent.hasClickedOutside(mouseX, mouseY, mouseButton) && this.functionComponent.hasClickedOutside(mouseX, mouseY, mouseButton) && flag;
     }
 
     @Override

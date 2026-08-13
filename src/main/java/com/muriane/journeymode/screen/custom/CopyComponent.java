@@ -3,7 +3,6 @@ package com.muriane.journeymode.screen.custom;
 import com.google.common.collect.Lists;
 import com.muriane.journeymode.JourneyMode;
 import com.muriane.journeymode.func.copy.CopyManager;
-import com.muriane.journeymode.payload.ResearchDataData;
 import com.muriane.journeymode.payload.ResearchItemData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -20,24 +19,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Locale;
 
 public class CopyComponent implements Renderable, GuiEventListener, NarratableEntry {
-    public static final ResourceLocation COPY_MENU_LOCATION = ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "textures/gui/copy/copy_menu.png");
+    public static final ResourceLocation COPY_MENU = ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "textures/gui/copy/copy_menu.png");
     public static final WidgetSprites RESEARCH_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/research_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/research_button.highlighted"));
     public static final WidgetSprites RIGHT_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/right_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/right_button_highlighted"));
     public static final WidgetSprites LEFT_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/left_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/left_button_highlighted"));
     public static final WidgetSprites DOWN_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/down_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/down_button_highlighted"));
     public static final WidgetSprites UP_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/up_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/up_button_highlighted"));
     public static final Component SEARCH_HINT = Component.translatable("gui.recipebook.search_hint").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY);
-    private int xOffset;
-    private int width;
-    private int height;
-    @Nullable
+    private int x;
+    private int y;
     private EditBox searchBox;
-    private Button researchButton;;
+    private Button researchButton;
     private Button copyPageForwardButton;
     private Button copyPageBackwardButton;
     private Button copyTabForwardButton;
@@ -46,14 +42,12 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
     private String lastSearch = "";
     private boolean ignoreTextInput;
     private boolean visible;
-    private boolean widthTooNarrow;
     private boolean init;
 
-    public void init(int width, int height, Minecraft minecraft, boolean widthTooNarrow) {
+    public void init(int x, int y, Minecraft minecraft) {
         this.minecraft = minecraft;
-        this.width = width;
-        this.height = height;
-        this.widthTooNarrow = widthTooNarrow;
+        this.x = x;
+        this.y = y;
         this.visible = true;
         this.initVisuals();
         this.update();
@@ -61,12 +55,8 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
     }
 
     public void initVisuals() {
-        this.xOffset = this.widthTooNarrow ? 0 : 86;
-        int i = (this.width - 148) / 2 - this.xOffset;
-        int j = (this.height - 166) / 2;
-
         String s = this.searchBox != null ? this.searchBox.getValue() : "";
-        this.searchBox = new EditBox(this.minecraft.font, i + 25, j + 13, 108, 14, Component.translatable("itemGroup.search"));
+        this.searchBox = new EditBox(this.minecraft.font, x + 25, y + 13, 108, 14, Component.translatable("itemGroup.search"));
         this.searchBox.setMaxLength(50);
         this.searchBox.setVisible(true);
         this.searchBox.setTextColor(16777215);
@@ -76,34 +66,34 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
             CopyManager.LOCAL_CACHE.setSearch(s);
         }
 
-        this.researchButton = new ImageButton(i+30, j+167, 18, 18, RESEARCH_BUTTON_SPRITES,
+        this.researchButton = new ImageButton(x+28, y+165, 22, 22, RESEARCH_BUTTON_SPRITES,
                 button -> {
-                    if (minecraft.player != null && minecraft.player.containerMenu instanceof JourneyModeMenu menu) {
+                    if (minecraft.player != null && minecraft.player.containerMenu instanceof JourneyModeMenu) {
                         PacketDistributor.sendToServer(new ResearchItemData());
                     }
                 }
         );
 
-        this.copyPageForwardButton = new ImageButton(i+93, j+137, 12, 17, RIGHT_BUTTON_SPRITES,
+        this.copyPageForwardButton = new ImageButton(x+93, y+137, 12, 17, RIGHT_BUTTON_SPRITES,
                 button -> {
                     CopyManager.LOCAL_CACHE.forwardItemPage();
                     this.update();
                 }
         );
-        this.copyPageBackwardButton = new ImageButton(i+38, j+137, 12, 17, LEFT_BUTTON_SPRITES,
+        this.copyPageBackwardButton = new ImageButton(x+38, y+137, 12, 17, LEFT_BUTTON_SPRITES,
                 button -> {
                     CopyManager.LOCAL_CACHE.backwardItemPage();
                     this.update();
                 }
         );
 
-        this.copyTabForwardButton = new ImageButton(i-20, j+155, 17, 12, DOWN_BUTTON_SPRITES,
+        this.copyTabForwardButton = new ImageButton(x-20, y+155, 17, 12, DOWN_BUTTON_SPRITES,
                 button -> {
                     CopyManager.LOCAL_CACHE.forwardTabPage();
                     this.update();
                 }
         );
-        this.copyTabBackwardButton = new ImageButton(i-20, j+3, 17, 12, UP_BUTTON_SPRITES,
+        this.copyTabBackwardButton = new ImageButton(x-20, y+3, 17, 12, UP_BUTTON_SPRITES,
                 button -> {
                     CopyManager.LOCAL_CACHE.backwardTabPage();
                     this.update();
@@ -116,12 +106,10 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         if (this.init && isVisible()){
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
-            int i = (this.width - 148) / 2 - this.xOffset;
-            int j = (this.height - 166) / 2;
-            guiGraphics.blit(COPY_MENU_LOCATION, i, j, 1, 1, 147, 192);
+            guiGraphics.blit(COPY_MENU, x, y, 147, 192, 0, 0, 147, 192, 147, 192);
             this.searchBox.render(guiGraphics, mouseX, mouseY, partialTick);
             this.researchButton.render(guiGraphics, mouseX, mouseY, partialTick);
-            renderCopyPage(guiGraphics, mouseX, mouseY, partialTick, i, j);
+            renderCopyPage(guiGraphics, mouseX, mouseY, partialTick, x, y);
             guiGraphics.pose().popPose();
         }
     }
@@ -155,8 +143,8 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
             this.copyPageBackwardButton.render(guiGraphics, mouseX, mouseY, partialTick);
             if (CopyManager.LOCAL_CACHE.maxItemPage > 1){
                 Component component = Component.translatable("gui.journeymode.copy_page.page", CopyManager.LOCAL_CACHE.itemPage, CopyManager.LOCAL_CACHE.maxItemPage);
-                int i = this.minecraft.font.width(component);
-                guiGraphics.drawString(this.minecraft.font, component, x - i / 2 + 73, y + 141, -1, false);
+                int length = this.minecraft.font.width(component);
+                guiGraphics.drawString(this.minecraft.font, component, x - length / 2 + 73, y + 141, -1, false);
             }
 
             this.copyTabForwardButton.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -260,7 +248,6 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         String s = this.searchBox.getValue().toLowerCase(Locale.ROOT);
         this.pirateSpeechForThePeople(s);
         if (!s.equals(this.lastSearch)) {
-            this.updateCollections(false);
             this.lastSearch = s;
         }
     }
@@ -281,9 +268,7 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         }
     }
 
-    public boolean hasClickedOutside(double mouseX, double mouseY, int guiLeft, int guiTop, int mouseButton) {
-        int x = (this.width - 148) / 2 - this.xOffset;
-        int y = (this.height - 166) / 2;
+    public boolean hasClickedOutside(double mouseX, double mouseY, int mouseButton) {
         boolean main = mouseX < x ||
                 mouseY < y ||
                 mouseX >= x+147 ||
@@ -297,10 +282,6 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
                 mouseX >= x ||
                 mouseY >= y+166+26;
         return main && research && tab;
-    }
-
-    private void updateCollections(boolean resetPageNumber) {
-
     }
 
     @Override
@@ -319,7 +300,6 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
     @Override
     public void updateNarration(NarrationElementOutput narrationElementOutput) {
         List<NarratableEntry> list = Lists.newArrayList();
-//        list.add(this.searchBox);
         Screen.NarratableSearchResult screen$narratablesearchresult = Screen.findNarratableWidget(list, (NarratableEntry) null);
         if (screen$narratablesearchresult != null) {
             screen$narratablesearchresult.entry.updateNarration(narrationElementOutput.nest());

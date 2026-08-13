@@ -1,20 +1,13 @@
 package com.muriane.journeymode.screen.custom;
 
-import com.google.common.collect.Lists;
 import com.muriane.journeymode.JourneyMode;
 import com.muriane.journeymode.func.copy.CopyManager;
-import com.muriane.journeymode.payload.CopyItemData;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.List;
 
