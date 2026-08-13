@@ -21,7 +21,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
-public record ResearchDataData(CopyManager.PlayerResearchData data) implements CustomPacketPayload {
+public record ResearchDataData(CopyManager.PlayerResearchData data, boolean needOpenMenu) implements CustomPacketPayload {
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final Type<ResearchDataData> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "research_data"));
 
@@ -40,6 +40,8 @@ public record ResearchDataData(CopyManager.PlayerResearchData data) implements C
         }else{
             ByteBufCodecs.BOOL.encode(buf, false);
         }
+
+        ByteBufCodecs.BOOL.encode(buf, data.needOpenMenu);
     }
 
     public static ResearchDataData decode(ByteBuf buf){
@@ -51,7 +53,7 @@ public record ResearchDataData(CopyManager.PlayerResearchData data) implements C
                 data.researchMap.put(ByteBufCodecs.STRING_UTF8.decode(buf), ByteBufCodecs.INT.decode(buf));
             }
         }
-        return new ResearchDataData(data);
+        return new ResearchDataData(data, ByteBufCodecs.BOOL.decode(buf));
     }
 
     @Override
@@ -76,7 +78,7 @@ public record ResearchDataData(CopyManager.PlayerResearchData data) implements C
 
         public static class ServerPayloadHandler {
             public static void handleDataOnMain(final ResearchDataData data, final IPayloadContext context) {
-                PacketDistributor.sendToPlayer((ServerPlayer) context.player(), new ResearchDataData(CopyManager.getPlayerData(context.player())));
+                PacketDistributor.sendToPlayer((ServerPlayer) context.player(), new ResearchDataData(CopyManager.getPlayerData(context.player()), data.needOpenMenu));
             }
         }
 
@@ -93,6 +95,10 @@ public record ResearchDataData(CopyManager.PlayerResearchData data) implements C
                 newData.researches.sort(ModUtils::researchSorter);
                 CopyManager.LOCAL_CACHE = newData;
                 CopyManager.LOCAL_CACHE.update();
+
+                if (data.needOpenMenu){
+                    PacketDistributor.sendToServer(new OpenJourneyModeMenuData(true));
+                }
             }
         }
     }

@@ -56,18 +56,27 @@ public record CopyItemData(String item, int button, boolean shift) implements Cu
         public static class ServerPayloadHandler {
             public static void handleDataOnMain(final CopyItemData data, final IPayloadContext context) {
                 Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(data.item));
-                if (CopyManager.hasResearch(item.getDefaultInstance(), context.player())){
-                    int count = data.button == 0 ? item.getDefaultMaxStackSize() : 1;
-                    ItemStack stack = new ItemStack(item, count);
+                ItemStack stackCarried = context.player().containerMenu.getCarried();
+                int count = data.button == 0 ? item.getDefaultMaxStackSize() : 1;
+                ItemStack stack = new ItemStack(item, count);
+
+                if (stackCarried.is(item) || stackCarried.isEmpty()) {
+                    if (CopyManager.hasResearch(item.getDefaultInstance(), context.player())) {
+                        if (data.shift) {
+                            context.player().addItem(stack);
+                        } else {
+                            if (stackCarried.is(item)) {
+                                stackCarried.setCount(Math.min(stackCarried.getCount() + count, stackCarried.getMaxStackSize()));
+                            } else if (stackCarried.isEmpty()) {
+                                context.player().containerMenu.setCarried(stack);
+                            }
+                        }
+                    }
+                }else{
                     if (data.shift) {
                         context.player().addItem(stack);
                     }else{
-                        ItemStack stackCarried = context.player().containerMenu.getCarried();
-                        if (stackCarried.is(item)){
-                            stackCarried.setCount(Math.min(stackCarried.getCount()+count, stackCarried.getMaxStackSize()));
-                        }else if (stackCarried.isEmpty()){
-                            context.player().containerMenu.setCarried(stack);
-                        }
+                        context.player().containerMenu.setCarried(ItemStack.EMPTY);
                     }
                 }
             }

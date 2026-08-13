@@ -1,7 +1,7 @@
 package com.muriane.journeymode.screen.custom;
 
 import com.muriane.journeymode.JourneyMode;
-import com.muriane.journeymode.payload.OpenMenuData;
+import com.muriane.journeymode.payload.OpenJourneyModeMenuData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
@@ -24,7 +24,7 @@ public class JourneyModeButton extends ImageButton {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player != null) {
             if (!(minecraft.screen instanceof JourneyModeScreen)) {
-                PacketDistributor.sendToServer(new OpenMenuData(0));
+                PacketDistributor.sendToServer(new OpenJourneyModeMenuData(false));
             }else{
                 minecraft.screen.onClose();
             }

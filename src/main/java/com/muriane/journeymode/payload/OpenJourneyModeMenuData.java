@@ -12,20 +12,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.SimpleMenuProvider;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
-public record OpenMenuData(int menuType) implements CustomPacketPayload {
+public record OpenJourneyModeMenuData(boolean prepared) implements CustomPacketPayload {
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final Type<OpenMenuData> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "open_menu"));
+    public static final Type<OpenJourneyModeMenuData> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "open_menu"));
 
-    public static final StreamCodec<ByteBuf, OpenMenuData> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT,
-            OpenMenuData::menuType,
-            OpenMenuData::new
+    public static final StreamCodec<ByteBuf, OpenJourneyModeMenuData> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL,
+            OpenJourneyModeMenuData::prepared,
+            OpenJourneyModeMenuData::new
     );
 
     @Override
@@ -39,8 +40,8 @@ public record OpenMenuData(int menuType) implements CustomPacketPayload {
         public static void register(RegisterPayloadHandlersEvent event){
             final PayloadRegistrar registrar = event.registrar("1");
             registrar.playBidirectional(
-                    OpenMenuData.TYPE,
-                    OpenMenuData.STREAM_CODEC,
+                    OpenJourneyModeMenuData.TYPE,
+                    OpenJourneyModeMenuData.STREAM_CODEC,
                     new DirectionalPayloadHandler<>(
                             ClientPayloadHandler::handleDataOnMain,
                             ServerPayloadHandler::handleDataOnMain
@@ -49,22 +50,22 @@ public record OpenMenuData(int menuType) implements CustomPacketPayload {
         }
 
         public static class ServerPayloadHandler {
-            public static void handleDataOnMain(final OpenMenuData data, final IPayloadContext context) {
-                switch (data.menuType){
-                    case 0:
-                        context.player().openMenu(
-                                new SimpleMenuProvider(
-                                        ((containerId, inventory, player) -> new JourneyModeMenu(containerId, inventory, null)),
-                                        Component.empty()
-                                )
-                        );
-                        break;
+            public static void handleDataOnMain(final OpenJourneyModeMenuData data, final IPayloadContext context) {
+                if (data.prepared) {
+                    context.player().openMenu(
+                            new SimpleMenuProvider(
+                                    ((containerId, inventory, player) -> new JourneyModeMenu(containerId, inventory, null)),
+                                    Component.empty()
+                            )
+                    );
+                }else{
+                    PacketDistributor.sendToServer(new ResearchDataData(null, true));
                 }
             }
         }
 
         public static class ClientPayloadHandler {
-            public static void handleDataOnMain(final OpenMenuData data, final IPayloadContext context) {
+            public static void handleDataOnMain(final OpenJourneyModeMenuData data, final IPayloadContext context) {
 
             }
         }

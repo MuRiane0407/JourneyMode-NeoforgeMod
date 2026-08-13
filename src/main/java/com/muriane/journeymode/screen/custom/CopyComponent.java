@@ -27,8 +27,10 @@ import java.util.Locale;
 public class CopyComponent implements Renderable, GuiEventListener, NarratableEntry {
     public static final ResourceLocation COPY_MENU_LOCATION = ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "textures/gui/copy/copy_menu.png");
     public static final WidgetSprites RESEARCH_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/research_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/research_button.highlighted"));
-    public static final WidgetSprites PAGE_FORWARD_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/page_forward"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/page_forward_highlighted"));
-    public static final WidgetSprites PAGE_BACKWARD_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/page_backward"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/page_backward_highlighted"));
+    public static final WidgetSprites RIGHT_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/right_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/right_button_highlighted"));
+    public static final WidgetSprites LEFT_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/left_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/left_button_highlighted"));
+    public static final WidgetSprites DOWN_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/down_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/down_button_highlighted"));
+    public static final WidgetSprites UP_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/up_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/up_button_highlighted"));
     public static final Component SEARCH_HINT = Component.translatable("gui.recipebook.search_hint").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY);
     private int xOffset;
     private int width;
@@ -36,13 +38,16 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
     @Nullable
     private EditBox searchBox;
     private Button researchButton;;
-    private Button forwardButton;
-    private Button backwardButton;
+    private Button copyPageForwardButton;
+    private Button copyPageBackwardButton;
+    private Button copyTabForwardButton;
+    private Button copyTabBackwardButton;
     protected Minecraft minecraft;
     private String lastSearch = "";
     private boolean ignoreTextInput;
     private boolean visible;
     private boolean widthTooNarrow;
+    private boolean init;
 
     public void init(int width, int height, Minecraft minecraft, boolean widthTooNarrow) {
         this.minecraft = minecraft;
@@ -52,10 +57,10 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         this.visible = true;
         this.initVisuals();
         this.update();
+        this.init = true;
     }
 
     public void initVisuals() {
-        PacketDistributor.sendToServer(new ResearchDataData(null));
         this.xOffset = this.widthTooNarrow ? 0 : 86;
         int i = (this.width - 148) / 2 - this.xOffset;
         int j = (this.height - 166) / 2;
@@ -67,6 +72,9 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         this.searchBox.setTextColor(16777215);
         this.searchBox.setValue(s);
         this.searchBox.setHint(SEARCH_HINT);
+        if (CopyManager.LOCAL_CACHE != null) {
+            CopyManager.LOCAL_CACHE.setSearch(s);
+        }
 
         this.researchButton = new ImageButton(i+30, j+167, 18, 18, RESEARCH_BUTTON_SPRITES,
                 button -> {
@@ -76,15 +84,28 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
                 }
         );
 
-        this.forwardButton = new ImageButton(i+93, j+137, 12, 17, PAGE_FORWARD_SPRITES,
+        this.copyPageForwardButton = new ImageButton(i+93, j+137, 12, 17, RIGHT_BUTTON_SPRITES,
                 button -> {
-                    CopyManager.LOCAL_CACHE.forwardPage();
+                    CopyManager.LOCAL_CACHE.forwardItemPage();
                     this.update();
                 }
         );
-        this.backwardButton = new ImageButton(i+38, j+137, 12, 17, PAGE_BACKWARD_SPRITES,
+        this.copyPageBackwardButton = new ImageButton(i+38, j+137, 12, 17, LEFT_BUTTON_SPRITES,
                 button -> {
-                    CopyManager.LOCAL_CACHE.backwardPage();
+                    CopyManager.LOCAL_CACHE.backwardItemPage();
+                    this.update();
+                }
+        );
+
+        this.copyTabForwardButton = new ImageButton(i-20, j+155, 17, 12, DOWN_BUTTON_SPRITES,
+                button -> {
+                    CopyManager.LOCAL_CACHE.forwardTabPage();
+                    this.update();
+                }
+        );
+        this.copyTabBackwardButton = new ImageButton(i-20, j+3, 17, 12, UP_BUTTON_SPRITES,
+                button -> {
+                    CopyManager.LOCAL_CACHE.backwardTabPage();
                     this.update();
                 }
         );
@@ -92,7 +113,7 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        if (isVisible()){
+        if (this.init && isVisible()){
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
             int i = (this.width - 148) / 2 - this.xOffset;
@@ -108,10 +129,20 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
     public void renderCopyPage(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, int x, int y) {
         Player player = Minecraft.getInstance().player;
         if (CopyManager.LOCAL_CACHE != null && player != null) {
-            int startX = x+11;
-            int startY = y+31;
-            for (CopyItemButton button : CopyManager.LOCAL_CACHE.buttonList) {
-                button.renderWidget(guiGraphics, mouseX, mouseY, partialTick, startX, startY);
+            int itemX = x+11;
+            int itemY = y+31;
+            for (CopyItemButton button : CopyManager.LOCAL_CACHE.itemButtonList) {
+                button.renderWidget(guiGraphics, mouseX, mouseY, partialTick, itemX, itemY);
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0.0F, 0.0F, 50.0F);
+                if (button.isMouseOver(mouseX, mouseY)) guiGraphics.renderComponentTooltip(this.minecraft.font, button.getTooltipText(), mouseX, mouseY);
+                guiGraphics.pose().popPose();
+            }
+
+            int tabX = x-30;
+            int tabY = y+18;
+            for (CopyTabButton button : CopyManager.LOCAL_CACHE.tabButtonList) {
+                button.renderWidget(guiGraphics, mouseX, mouseY, partialTick, tabX, tabY);
                 guiGraphics.pose().pushPose();
                 guiGraphics.pose().translate(0.0F, 0.0F, 50.0F);
                 if (button.isMouseOver(mouseX, mouseY)) guiGraphics.renderComponentTooltip(this.minecraft.font, button.getTooltipText(), mouseX, mouseY);
@@ -119,13 +150,17 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
             }
 
             updatePageButton();
-            this.forwardButton.render(guiGraphics, mouseX, mouseY, partialTick);
-            this.backwardButton.render(guiGraphics, mouseX, mouseY, partialTick);
-            if (CopyManager.LOCAL_CACHE.maxPage > 1){
-                Component component = Component.translatable("gui.journeymode.copy_page.page", CopyManager.LOCAL_CACHE.page, CopyManager.LOCAL_CACHE.maxPage);
+
+            this.copyPageForwardButton.render(guiGraphics, mouseX, mouseY, partialTick);
+            this.copyPageBackwardButton.render(guiGraphics, mouseX, mouseY, partialTick);
+            if (CopyManager.LOCAL_CACHE.maxItemPage > 1){
+                Component component = Component.translatable("gui.journeymode.copy_page.page", CopyManager.LOCAL_CACHE.itemPage, CopyManager.LOCAL_CACHE.maxItemPage);
                 int i = this.minecraft.font.width(component);
                 guiGraphics.drawString(this.minecraft.font, component, x - i / 2 + 73, y + 141, -1, false);
             }
+
+            this.copyTabForwardButton.render(guiGraphics, mouseX, mouseY, partialTick);
+            this.copyTabBackwardButton.render(guiGraphics, mouseX, mouseY, partialTick);
         }
     }
 
@@ -135,8 +170,10 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
 
     public void updatePageButton() {
         if (CopyManager.LOCAL_CACHE != null){
-            this.forwardButton.visible = CopyManager.LOCAL_CACHE.maxPage > 1 && CopyManager.LOCAL_CACHE.page < CopyManager.LOCAL_CACHE.maxPage;
-            this.backwardButton.visible = CopyManager.LOCAL_CACHE.maxPage > 1 && CopyManager.LOCAL_CACHE.page > 1;
+            this.copyPageForwardButton.visible = CopyManager.LOCAL_CACHE.maxItemPage > 1 && CopyManager.LOCAL_CACHE.itemPage < CopyManager.LOCAL_CACHE.maxItemPage;
+            this.copyPageBackwardButton.visible = CopyManager.LOCAL_CACHE.maxItemPage > 1 && CopyManager.LOCAL_CACHE.itemPage > 1;
+            this.copyTabForwardButton.visible = CopyManager.LOCAL_CACHE.maxTabPage > 1 && CopyManager.LOCAL_CACHE.tabPage < CopyManager.LOCAL_CACHE.maxTabPage;
+            this.copyTabBackwardButton.visible = CopyManager.LOCAL_CACHE.maxTabPage > 1 && CopyManager.LOCAL_CACHE.tabPage > 1;
         }
     }
 
@@ -149,7 +186,8 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         if (this.isVisible() && !this.minecraft.player.isSpectator()) {
             if (this.searchBox.keyPressed(keyCode, scanCode, modifiers)) {
                 this.checkSearchStringUpdate();
-                CopyManager.LOCAL_CACHE.updateWithSearch(this.searchBox.getValue());
+                CopyManager.LOCAL_CACHE.setSearch(this.searchBox.getValue());
+                CopyManager.LOCAL_CACHE.update();
                 return true;
             } else if (this.searchBox.isFocused() && this.searchBox.isVisible() && keyCode != 256) {
                 return true;
@@ -171,7 +209,8 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
         } else if (this.isVisible() && !this.minecraft.player.isSpectator()) {
             if (this.searchBox.charTyped(codePoint, modifiers)) {
                 this.checkSearchStringUpdate();
-                CopyManager.LOCAL_CACHE.updateWithSearch(this.searchBox.getValue());
+                CopyManager.LOCAL_CACHE.setSearch(this.searchBox.getValue());
+                CopyManager.LOCAL_CACHE.update();
                 return true;
             } else {
                 return GuiEventListener.super.charTyped(codePoint, modifiers);
@@ -190,13 +229,22 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
                 this.searchBox.setFocused(false);
                 if (this.researchButton.mouseClicked(mouseX, mouseY, button)){
                     return true;
-                }else if (this.forwardButton.mouseClicked(mouseX, mouseY, button)){
+                }else if (this.copyPageForwardButton.mouseClicked(mouseX, mouseY, button)){
                     return true;
-                }else if (this.backwardButton.mouseClicked(mouseX, mouseY, button)){
+                }else if (this.copyPageBackwardButton.mouseClicked(mouseX, mouseY, button)){
+                    return true;
+                }else if (this.copyTabForwardButton.mouseClicked(mouseX, mouseY, button)){
+                    return true;
+                }else if (this.copyTabBackwardButton.mouseClicked(mouseX, mouseY, button)){
                     return true;
                 }else{
-                    for (CopyItemButton copyItemButton : CopyManager.LOCAL_CACHE.buttonList){
+                    for (CopyItemButton copyItemButton : CopyManager.LOCAL_CACHE.itemButtonList){
                         if (copyItemButton.mouseClicked(mouseX, mouseY, button)) {
+                            return true;
+                        }
+                    }
+                    for (CopyTabButton copyTabButton : CopyManager.LOCAL_CACHE.tabButtonList){
+                        if (copyTabButton.mouseClicked(mouseX, mouseY, button)) {
                             return true;
                         }
                     }
@@ -244,7 +292,11 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
                 mouseY < y+166 ||
                 mouseX >= x+56 ||
                 mouseY >= y+166+26;
-        return main && research;
+        boolean tab = mouseX < x-35 ||
+                mouseY < y ||
+                mouseX >= x ||
+                mouseY >= y+166+26;
+        return main && research && tab;
     }
 
     private void updateCollections(boolean resetPageNumber) {

@@ -59,9 +59,10 @@ public record ResearchItemData() implements CustomPacketPayload {
 
                         ModUtils.playSoundForPlayer((ServerPlayer) context.player(), ModSounds.RESEARCH.get(), 1.0F, 1.0F);
                         if (pair.getSecond()) ModUtils.playSoundForPlayer((ServerPlayer) context.player(), ModSounds.RESEARCH_FINISH.get(), 1.0F, 1.0F);
+
+                        PacketDistributor.sendToPlayer((ServerPlayer) context.player(), new ResearchDataData(CopyManager.getPlayerData(context.player()), false));
                     }
                 }
-                PacketDistributor.sendToPlayer((ServerPlayer) context.player(), new ResearchDataData(CopyManager.getPlayerData(context.player())));
             }
         }
 

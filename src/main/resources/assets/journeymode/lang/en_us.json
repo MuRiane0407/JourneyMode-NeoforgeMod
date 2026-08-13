@@ -1,4 +1,11 @@
 {
   "gui.journeymode.copy_item_button.tooltip.noncopyable": "§7%d/%d",
-  "gui.journeymode.copy_page.page": "%s/%s"
+  "gui.journeymode.copy_page.page": "%s/%s",
+
+  "commands.journeymode.research.hasResearch": "%s has researched %s",
+  "commands.journeymode.research.research": "%s researches %s for %s",
+  "commands.journeymode.research.researchAll": "%s researches all",
+  "commands.journeymode.research.notResearch": "%s hasn't researched %s",
+  "commands.journeymode.research.forget": "%s forgets %s for %s",
+  "commands.journeymode.research.forgetAll": "%s forgets all"
 }
