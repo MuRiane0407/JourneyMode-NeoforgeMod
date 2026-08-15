@@ -32,10 +32,8 @@ public class JourneyModeScreen extends EffectRenderingInventoryScreen<JourneyMod
         super.init();
         this.leftPos = 177 + (width - imageWidth - 200) / 2;
         this.addRenderableWidget(new JourneyModeButton(this.getGuiLeft() + 104 + 26, this.height / 2 - 22));
-        copyComponent.init(this.leftPos-149, this.topPos, minecraft);
-        this.addRenderableWidget(copyComponent);
-        functionComponent.init(this.leftPos, this.topPos+168, minecraft);
-        this.addRenderableWidget(functionComponent);
+        this.copyComponent.init(this.leftPos-149, this.topPos, minecraft);
+        this.functionComponent.init(this.leftPos, this.topPos+168, minecraft);
     }
 
     @Override
@@ -47,6 +45,11 @@ public class JourneyModeScreen extends EffectRenderingInventoryScreen<JourneyMod
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0.0F, 0.0F, 150.0F);
+        this.copyComponent.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.functionComponent.render(guiGraphics, mouseX, mouseY, partialTick);
+        guiGraphics.pose().popPose();
         this.xMouse = (float)mouseX;
         this.yMouse = (float)mouseY;
     }
@@ -181,6 +184,16 @@ public class JourneyModeScreen extends EffectRenderingInventoryScreen<JourneyMod
             return true;
         } else {
             return super.mouseClicked(mouseX, mouseY, button);
+        }
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (this.functionComponent.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
+            this.setFocused(this.functionComponent);
+            return true;
+        }else{
+            return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
         }
     }
 

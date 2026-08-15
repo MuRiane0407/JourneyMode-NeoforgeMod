@@ -1,4 +1,4 @@
-package com.muriane.journeymode.func.copy;
+package com.muriane.journeymode.func;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;

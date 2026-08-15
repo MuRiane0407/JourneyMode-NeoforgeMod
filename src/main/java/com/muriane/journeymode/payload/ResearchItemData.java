@@ -3,7 +3,7 @@ package com.muriane.journeymode.payload;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.muriane.journeymode.JourneyMode;
-import com.muriane.journeymode.func.copy.CopyManager;
+import com.muriane.journeymode.func.CopyManager;
 import com.muriane.journeymode.screen.custom.JourneyModeMenu;
 import com.muriane.journeymode.util.ModSounds;
 import com.muriane.journeymode.util.ModUtils;

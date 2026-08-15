@@ -1,6 +1,7 @@
 package com.muriane.journeymode.screen.custom;
 
 import com.google.common.collect.Lists;
+import com.muriane.journeymode.Config;
 import com.muriane.journeymode.JourneyMode;
 import com.muriane.journeymode.payload.CopyItemData;
 import net.minecraft.ChatFormatting;
@@ -38,7 +39,7 @@ public class CopyItemButton extends ImageButton {
 
     public List<Component> getTooltipText() {
         List<Component> list = Lists.newArrayList(Screen.getTooltipFromItem(Minecraft.getInstance(), this.item.getDefaultInstance()));
-        if (progress != -1) list.add(Component.translatable("gui.journeymode.copy_item_button.tooltip.noncopyable", this.progress, this.item.getDefaultMaxStackSize()).withStyle(ChatFormatting.GRAY));
+        if (progress != -1) list.add(Component.translatable("gui.journeymode.copy_item_button.tooltip.noncopyable", this.progress, (int) (this.item.getDefaultMaxStackSize() * Config.SERVER.RESEARCH_DEMAND_MULTIPLIER.getAsDouble())).withStyle(ChatFormatting.GRAY));
 
         return list;
     }

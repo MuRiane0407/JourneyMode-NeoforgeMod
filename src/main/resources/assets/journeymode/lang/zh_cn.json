@@ -1,0 +1,21 @@
+{
+  "gui.journeymode.copy_item_button.tooltip.noncopyable": "§7%d/%d",
+  "gui.journeymode.copy_page.page": "%s/%s",
+
+  "commands.journeymode.research.hasResearch": "%s已经研究过%s了",
+  "commands.journeymode.research.research": "%s研究了%s%s次",
+  "commands.journeymode.research.researchAll": "%s研究了所有物品",
+  "commands.journeymode.research.notResearch": "%s没有研究过%s",
+  "commands.journeymode.research.forget": "%s遗忘了%s%s次",
+  "commands.journeymode.research.forgetAll": "%s遗忘了所有物品",
+
+  "journeymode.configuration.title": "旅行模式",
+  "journeymode.configuration.section.journeymode.server.toml": "服务端设置",
+  "journeymode.configuration.section.journeymode.server.toml.title": "旅行模式 | 服务端设置",
+
+  "journeymode.configuration.copy": "复制设置",
+  "journeymode.configuration.copy.button": "复制设置",
+  "journeymode.configuration.copy.tooltip": "复制设置",
+  "journeymode.configuration.copy.research_demand_multiplier": "研究需求倍率",
+  "journeymode.configuration.copy.research_demand_multiplier.tooltip": "完成研究所需求的物品倍率\n§7例如, 末影珍珠一组为16个, 若倍率为1.5, 则玩家需要研究24个才能完成研究"
+}

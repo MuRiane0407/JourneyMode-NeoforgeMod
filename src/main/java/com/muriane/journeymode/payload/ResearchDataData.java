@@ -2,8 +2,9 @@ package com.muriane.journeymode.payload;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
+import com.muriane.journeymode.Config;
 import com.muriane.journeymode.JourneyMode;
-import com.muriane.journeymode.func.copy.CopyManager;
+import com.muriane.journeymode.func.CopyManager;
 import com.muriane.journeymode.util.ModUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -86,7 +87,7 @@ public record ResearchDataData(CopyManager.PlayerResearchData data, boolean need
             public static void handleDataOnMain(final ResearchDataData data, final IPayloadContext context) {
                 CopyManager.LocalPlayerResearchData newData = new CopyManager.LocalPlayerResearchData();
                 for (String key : data.data.researchMap.keySet()){
-                    if (data.data.researchMap.get(key) >= BuiltInRegistries.ITEM.get(ResourceLocation.parse(key)).getDefaultMaxStackSize()) {
+                    if (data.data.researchMap.get(key) >= (int) (BuiltInRegistries.ITEM.get(ResourceLocation.parse(key)).getDefaultMaxStackSize() * Config.SERVER.RESEARCH_DEMAND_MULTIPLIER.getAsDouble())) {
                         newData.researches.add(new Pair<>(key, -1));
                     }else{
                         newData.researches.add(new Pair<>(key, data.data.researchMap.get(key)));

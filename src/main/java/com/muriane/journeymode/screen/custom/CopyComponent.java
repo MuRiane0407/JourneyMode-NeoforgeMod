@@ -2,7 +2,7 @@ package com.muriane.journeymode.screen.custom;
 
 import com.google.common.collect.Lists;
 import com.muriane.journeymode.JourneyMode;
-import com.muriane.journeymode.func.copy.CopyManager;
+import com.muriane.journeymode.func.CopyManager;
 import com.muriane.journeymode.payload.ResearchItemData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -23,13 +23,14 @@ import java.util.List;
 import java.util.Locale;
 
 public class CopyComponent implements Renderable, GuiEventListener, NarratableEntry {
-    public static final ResourceLocation COPY_MENU = ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "textures/gui/copy/copy_menu.png");
+    public static final ResourceLocation COPY_MENU = ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "textures/gui/copy_menu.png");
     public static final WidgetSprites RESEARCH_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/research_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/research_button.highlighted"));
     public static final WidgetSprites RIGHT_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/right_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/right_button_highlighted"));
     public static final WidgetSprites LEFT_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/left_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/left_button_highlighted"));
     public static final WidgetSprites DOWN_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/down_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/down_button_highlighted"));
     public static final WidgetSprites UP_BUTTON_SPRITES = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/up_button"), ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "copy/up_button_highlighted"));
     public static final Component SEARCH_HINT = Component.translatable("gui.recipebook.search_hint").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY);
+    protected Minecraft minecraft;
     private int x;
     private int y;
     private EditBox searchBox;
@@ -38,7 +39,6 @@ public class CopyComponent implements Renderable, GuiEventListener, NarratableEn
     private Button copyPageBackwardButton;
     private Button copyTabForwardButton;
     private Button copyTabBackwardButton;
-    protected Minecraft minecraft;
     private String lastSearch = "";
     private boolean ignoreTextInput;
     private boolean visible;

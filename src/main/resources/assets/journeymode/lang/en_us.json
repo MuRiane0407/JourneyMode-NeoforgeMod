@@ -7,5 +7,15 @@
   "commands.journeymode.research.researchAll": "%s researches all",
   "commands.journeymode.research.notResearch": "%s hasn't researched %s",
   "commands.journeymode.research.forget": "%s forgets %s for %s",
-  "commands.journeymode.research.forgetAll": "%s forgets all"
+  "commands.journeymode.research.forgetAll": "%s forgets all",
+
+  "journeymode.configuration.title": "Journey Mode",
+  "journeymode.configuration.section.journeymode.server.toml": "Server Settings",
+  "journeymode.configuration.section.journeymode.server.toml.title": "Journey Mode | Server Settings",
+
+  "journeymode.configuration.copy": "Copy Settings",
+  "journeymode.configuration.copy.button": "Copy Settings",
+  "journeymode.configuration.copy.tooltip": "Copy Settings",
+  "journeymode.configuration.copy.research_demand_multiplier": "Research Demand Multiplier",
+  "journeymode.configuration.copy.research_demand_multiplier.tooltip": "Multiples of items completed in the research\n§7For example, ender pearl's max stack size is 16, if multiplier is 1.5, then players need 24 to finish the research"
 }

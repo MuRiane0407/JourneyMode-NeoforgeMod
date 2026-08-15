@@ -1,7 +1,7 @@
 package com.muriane.journeymode.screen.custom;
 
 import com.muriane.journeymode.JourneyMode;
-import com.muriane.journeymode.func.copy.CopyManager;
+import com.muriane.journeymode.func.CopyManager;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;

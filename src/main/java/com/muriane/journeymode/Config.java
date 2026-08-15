@@ -23,7 +23,9 @@ public class Config {
 
         Server(ModConfigSpec.Builder builder){
             builder.push("copy");
-            RESEARCH_DEMAND_MULTIPLIER = builder.defineInRange("research_demand_multiplier", 1.0, 0, 1024);
+            RESEARCH_DEMAND_MULTIPLIER = builder
+                    .translation("journeymode.configuration.copy.research_demand_multiplier")
+                    .defineInRange("research_demand_multiplier", 1.0, 0, 1024);
             builder.pop();
         }
     }

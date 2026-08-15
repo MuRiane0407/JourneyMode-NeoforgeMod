@@ -2,7 +2,7 @@ package com.muriane.journeymode.payload;
 
 import com.mojang.logging.LogUtils;
 import com.muriane.journeymode.JourneyMode;
-import com.muriane.journeymode.func.copy.CopyManager;
+import com.muriane.journeymode.func.CopyManager;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;

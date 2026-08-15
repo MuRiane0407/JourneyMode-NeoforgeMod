@@ -14,10 +14,12 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 
 public class JourneyModeFunctionComponent implements Renderable, GuiEventListener, NarratableEntry {
-    public static final ResourceLocation FUNCTION_MENU = ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "textures/gui/main/function_menu.png");
+    public static final ResourceLocation FUNCTION_MENU = ResourceLocation.fromNamespaceAndPath(JourneyMode.MOD_ID, "textures/gui/function_menu.png");
+    protected Minecraft minecraft;
     private int x;
     private int y;
-    protected Minecraft minecraft;
+    private TimeComponent timeComponent = new TimeComponent();
+    private WeatherComponent weatherComponent = new WeatherComponent();
     private boolean ignoreTextInput;
     private boolean visible;
     private boolean init;
@@ -28,11 +30,12 @@ public class JourneyModeFunctionComponent implements Renderable, GuiEventListene
         this.y = y;
         this.visible = true;
         this.initVisuals();
-        this.update();
         this.init = true;
     }
 
     public void initVisuals() {
+        this.timeComponent.init(this.x+5, this.y+5, minecraft, this);
+        this.weatherComponent.init(this.x+31, this.y+5, minecraft, this);
     }
 
     @Override
@@ -41,12 +44,15 @@ public class JourneyModeFunctionComponent implements Renderable, GuiEventListene
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
             guiGraphics.blit(FUNCTION_MENU, x, y, 176, 32, 0, 0, 176, 32, 176, 32);
+            this.timeComponent.render(guiGraphics, mouseX, mouseY, partialTick);
+            this.weatherComponent.render(guiGraphics, mouseX, mouseY, partialTick);
             guiGraphics.pose().popPose();
         }
     }
 
-    public void update() {
-
+    public void closeOtherFunc() {
+        this.timeComponent.setFuncVisible(false);
+        this.weatherComponent.setFuncVisible(false);
     }
 
     public boolean isVisible() {
@@ -74,18 +80,37 @@ public class JourneyModeFunctionComponent implements Renderable, GuiEventListene
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (this.isVisible() && !this.minecraft.player.isSpectator()) {
+            if (this.timeComponent.mouseClicked(mouseX, mouseY, button)){
+                return true;
+            }else if (this.weatherComponent.mouseClicked(mouseX, mouseY, button)){
+                return true;
+            }
             return false;
         } else {
             return false;
         }
     }
 
-    public boolean hasClickedOutside(double mouseX, double mouseY, int mouseButton) {
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (this.isVisible() && !this.minecraft.player.isSpectator()) {
+            if (this.timeComponent.mouseDragged(mouseX, mouseY, button, dragX, dragY)){
+                return true;
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean hasClickedOutside(double mouseX, double mouseY, int button) {
         boolean main = mouseX < x ||
                 mouseY < y ||
                 mouseX >= x+176 ||
                 mouseY >= y+32;
-        return main;
+        return main &&
+                this.timeComponent.hasClickedOutside(mouseX, mouseY, button) &&
+                this.weatherComponent.hasClickedOutside(mouseX, mouseY, button);
     }
 
     @Override
